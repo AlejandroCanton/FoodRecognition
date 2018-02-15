@@ -88,7 +88,7 @@ public final class RecognizeConceptsActivity extends BaseActivity {
 
     //@BindView(R.id.item1) TextView item1;
     private List<Concept> concepts;
-    private List<String> listOfItems = new ArrayList<>();
+    private List<String> listOfItems;
     private String m_Text = "";
     private Resources resources;
     private String output = "";
@@ -106,6 +106,7 @@ public final class RecognizeConceptsActivity extends BaseActivity {
 
 
       resources = getResources();
+
 
         try
         {
@@ -195,6 +196,7 @@ public final class RecognizeConceptsActivity extends BaseActivity {
 
     concepts = new ArrayList<>();
     layoutFood.removeAllViews();
+    listOfItems = new ArrayList<>();
 
     if (requestCode == PICK_IMAGE) //|| requestCode == REQUEST_IMAGE_CAPTURE)
     {

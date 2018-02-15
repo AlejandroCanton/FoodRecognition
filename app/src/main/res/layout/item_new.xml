@@ -12,7 +12,7 @@
         android:layout_height="20dp"
         android:layout_margin="5dp"
         android:layout_weight="1"
-        android:background="@color/md_red_100" />
+        />
 
     <ImageView
         android:id="@+id/delete_image"
@@ -20,7 +20,7 @@
         android:layout_height="20dp"
         android:layout_margin="5dp"
         android:layout_weight="5"
-        android:background="@color/md_amber_100"
+        android:src="@drawable/sign_error"
         android:onClick="deleteCurrent"/>
 
 
