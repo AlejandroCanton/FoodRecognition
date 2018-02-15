@@ -44,9 +44,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -67,13 +69,16 @@ public final class RecognizeConceptsActivity extends BaseActivity {
   @BindView(R.id.switcher) ViewSwitcher switcher;
 
   // the FAB that the user clicks to select an image
-  @BindView(R.id.fab) View fab;
+  @BindView(R.id.fabUpload) View fabUpload;
 
   // the FAB that the user clicks to capture an image
-  @BindView(R.id.fab2) View fab2;
+  @BindView(R.id.fabPhoto) View fabPhoto;
 
   // the FAB that the user clicks to add to the list
-  @BindView(R.id.fab3) View fab3;
+  @BindView(R.id.fabAdd) View fabAdd;
+
+  // the FAB that the user clicks to go to next activity
+  @BindView(R.id.fabNext) View fabNext;
 
 
     //big layout for food
@@ -89,12 +94,10 @@ public final class RecognizeConceptsActivity extends BaseActivity {
     //@BindView(R.id.item1) TextView item1;
     private List<Concept> concepts;
     private List<String> listOfItems;
+    private List<String> listOfFood;
     private String m_Text = "";
     private Resources resources;
     private String output = "";
-
-
-
 
 
 
@@ -106,17 +109,22 @@ public final class RecognizeConceptsActivity extends BaseActivity {
 
 
       resources = getResources();
+      listOfFood = new ArrayList<>();
 
-
-        try
+      try
         {
           //Load the file from the raw folder - don't forget to OMIT the extension
           output = LoadFile("food", true);
+
+
+
+
           //output to LogCat
           Log.i("test", output);
 
-            Toast toast = Toast.makeText(RecognizeConceptsActivity.this, output, Toast.LENGTH_LONG);
-            toast.show();
+            //Toast toast = Toast.makeText(RecognizeConceptsActivity.this, output, Toast.LENGTH_LONG);
+            //Toast toast = Toast.makeText(RecognizeConceptsActivity.this, output, Toast.LENGTH_LONG);
+            //toast.show();
         }
         catch (IOException e)
         {
@@ -135,13 +143,13 @@ public final class RecognizeConceptsActivity extends BaseActivity {
     //resultsList.setAdapter(adapter);
   }
 
-  @OnClick(R.id.fab)
+  @OnClick(R.id.fabUpload)
   void pickImage() {
       startActivityForResult(new Intent(Intent.ACTION_PICK).setType("image/*"), PICK_IMAGE);
 
   }
 
-  @OnClick(R.id.fab2)
+  @OnClick(R.id.fabPhoto)
   void takeImage() {
       startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE), REQUEST_IMAGE_CAPTURE);
 
@@ -152,17 +160,17 @@ public final class RecognizeConceptsActivity extends BaseActivity {
       }*/
   }
 
-  @OnClick(R.id.fab3)
+  @OnClick(R.id.fabAdd)
   void enterItem() {
 
 
       AlertDialog.Builder builder = new AlertDialog.Builder(this);
-      builder.setTitle("Title");
+      builder.setTitle("Add an ingredient");
 
 // Set up the input
       final EditText input = new EditText(this);
 // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-      input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+      input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_CLASS_TEXT);
       builder.setView(input);
 
 // Set up the buttons
@@ -185,6 +193,21 @@ public final class RecognizeConceptsActivity extends BaseActivity {
 
       builder.show();
 
+  }
+
+
+  @OnClick(R.id.fabNext)
+  void nextActivity()
+  {
+      String message = "";
+
+      for (int i = 0; i < listOfItems.size(); i++)
+      {
+          message = message + listOfItems.get(i) + ",";
+      }
+
+      Toast toast = Toast.makeText(RecognizeConceptsActivity.this, message, Toast.LENGTH_LONG);
+      toast.show();
 
   }
 
@@ -255,7 +278,7 @@ public final class RecognizeConceptsActivity extends BaseActivity {
         }
         //adapter.setData(predictions.get(0).data());
           concepts = predictions.get(0).data();
-          setDataLabels(concepts);
+          filterBatch(concepts);
         //imageView.setImageBitmap(BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length));
       }
 
@@ -270,12 +293,27 @@ public final class RecognizeConceptsActivity extends BaseActivity {
   }
 
 
-  private void setDataLabels(@NonNull List<Concept> concepts)
+  private void filterBatch(@NonNull List<Concept> concepts)
   {
-      for (int i = 0; i < concepts.size(); i++)
+
+      List<String> filteredNames = new ArrayList<>();
+
+      for (Concept c : concepts)
       {
-          Concept concept = concepts.get(i);
-          String nameOfConcept = concept.name();
+          Scanner scanner = new Scanner(output);
+
+          while (scanner.hasNext())
+          {
+              if (scanner.nextLine().equals(c.name()))
+              {
+                  filteredNames.add(c.name());
+              }
+          }
+      }
+
+      for (int i = 0; i < filteredNames.size(); i++)
+      {
+          String nameOfConcept = filteredNames.get(i);
           addEntry(nameOfConcept, i);
       }
 
@@ -288,7 +326,7 @@ public final class RecognizeConceptsActivity extends BaseActivity {
       @Override public void run() {
         switcher.setDisplayedChild(busy ? 1 : 0);
         imageView.setVisibility(busy ? GONE : VISIBLE);
-        fab.setEnabled(!busy);
+        fabUpload.setEnabled(!busy);
       }
     });
   }
@@ -306,6 +344,11 @@ public final class RecognizeConceptsActivity extends BaseActivity {
       layoutFood.addView(layoutNewItem);
       listOfItems.add(nameOfItem);
 
+      //if (nameOfItem.equals(listOfFood.get(2)))
+      //{
+          //Toast toast = Toast.makeText(RecognizeConceptsActivity.this, nameOfItem, Toast.LENGTH_LONG);
+          //toast.show();
+      //}
 
   }
 

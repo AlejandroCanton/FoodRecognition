@@ -64,7 +64,7 @@
 
 
   <android.support.design.widget.FloatingActionButton
-      android:id="@+id/fab"
+      android:id="@+id/fabUpload"
       android:layout_width="64dp"
       android:layout_height="64dp"
       android:layout_gravity="bottom"
@@ -74,7 +74,7 @@
   />
 
   <android.support.design.widget.FloatingActionButton
-      android:id="@+id/fab2"
+      android:id="@+id/fabPhoto"
       android:layout_width="64dp"
       android:layout_height="64dp"
       android:layout_gravity="left|bottom"
@@ -83,7 +83,7 @@
       />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab3"
+        android:id="@+id/fabAdd"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_gravity="center|bottom"
