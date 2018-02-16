@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
@@ -179,7 +180,13 @@ public final class RecognizeConceptsActivity extends BaseActivity {
           public void onClick(DialogInterface dialog, int which) {
               m_Text = input.getText().toString();
 
-              addEntry(m_Text, (listOfItems.size()));
+
+              if (!listOfItems.contains(m_Text))
+              {
+                  addEntry(m_Text, (listOfItems.size()));
+
+              }
+
 
 
           }
@@ -279,7 +286,7 @@ public final class RecognizeConceptsActivity extends BaseActivity {
         //adapter.setData(predictions.get(0).data());
           concepts = predictions.get(0).data();
           filterBatch(concepts);
-        //imageView.setImageBitmap(BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length));
+          imageView.setImageBitmap(BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length));
       }
 
       private void showErrorSnackbar(@StringRes int errorString) {
@@ -333,6 +340,12 @@ public final class RecognizeConceptsActivity extends BaseActivity {
 
   public void addEntry(String nameOfItem, int count)
   {
+
+
+      if (count == 8)
+      {
+          return;
+      }
 
       LinearLayout layoutNewItem = (LinearLayout) getLayoutInflater().inflate(R.layout.item_new, null);
       layoutNewItem.setId(count);
