@@ -4,6 +4,7 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:padding="5dp"
     >
 
     <TextView
@@ -12,7 +13,8 @@
         android:layout_height="20dp"
         android:layout_margin="5dp"
         android:layout_weight="1"
-        />
+        android:textColor="@color/material_drawer_primary_text"
+        android:textColorLink="@color/md_black_1000" />
 
     <ImageView
         android:id="@+id/delete_image"

@@ -3,12 +3,18 @@ package com.clarifai.android.starter.api.v2;
 import android.app.Application;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import clarifai2.api.ClarifaiBuilder;
 import clarifai2.api.ClarifaiClient;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import timber.log.Timber;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class App extends Application {
@@ -17,6 +23,11 @@ public class App extends Application {
   // it's recommended that you use something like Dagger 2, and inject your client instance.
   // Since that would be a distraction here, we will just use a regular singleton.
   private static App INSTANCE;
+
+  private String ingredientString;
+  private List<Dish> dishes;
+  private int position;
+  private JSONArray currentRecipe;
 
   @NonNull
   public static App get() {
@@ -29,6 +40,30 @@ public class App extends Application {
 
   @Nullable
   private ClarifaiClient client;
+
+  public void setDishes(List<Dish> list) {
+    dishes = list;
+  }
+
+  public List<Dish> getDishes() {
+    return dishes;
+  }
+
+  public void setCurrentRecipe(JSONArray arr) {
+    currentRecipe = arr;
+  }
+
+  public String makeRecipe() throws JSONException {
+    JSONObject object = currentRecipe.getJSONObject(0);
+    String title = object.getString("title");
+    int minutes = object.getInt("readyInMinutes");
+    int id = object.getInt("id");
+    JSONArray ingredients = object.getJSONArray("extendedIngredients");
+    String url = object.getString("sourceUrl");
+    JSONArray steps = object.getJSONArray("analyzedInstructions");
+    Recipe recipe = new Recipe(title,id,minutes,url,ingredients, steps);
+    return url;
+  }
 
   @Override
   public void onCreate() {

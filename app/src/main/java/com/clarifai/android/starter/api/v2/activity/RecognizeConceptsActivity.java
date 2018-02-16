@@ -4,18 +4,15 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
@@ -35,18 +32,14 @@ import clarifai2.dto.model.output.ClarifaiOutput;
 import clarifai2.dto.prediction.Concept;
 import com.clarifai.android.starter.api.v2.App;
 import com.clarifai.android.starter.api.v2.ClarifaiUtil;
+import com.clarifai.android.starter.api.v2.JSONQuery;
 import com.clarifai.android.starter.api.v2.R;
 import com.clarifai.android.starter.api.v2.adapter.RecognizeConceptsAdapter;
 
-import org.w3c.dom.Text;
-
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
@@ -208,6 +201,7 @@ public final class RecognizeConceptsActivity extends BaseActivity {
   {
       String message = "";
 
+
       for (int i = 0; i < listOfItems.size(); i++)
       {
           message = message + listOfItems.get(i) + ",";
@@ -215,6 +209,11 @@ public final class RecognizeConceptsActivity extends BaseActivity {
 
       Toast toast = Toast.makeText(RecognizeConceptsActivity.this, message, Toast.LENGTH_LONG);
       toast.show();
+
+          JSONQuery query = new JSONQuery(listOfItems, getApplicationContext());
+          query.setUrl();
+          query.execute();
+
 
   }
 
@@ -355,6 +354,18 @@ public final class RecognizeConceptsActivity extends BaseActivity {
       labelText.setText(nameOfItem);
 
       layoutFood.addView(layoutNewItem);
+
+
+      View v = new View(this);
+      v.setLayoutParams(new LinearLayout.LayoutParams(
+              LinearLayout.LayoutParams.MATCH_PARENT,
+              5
+      ));
+      v.setBackgroundColor(Color.parseColor("#B3B3B3"));
+
+      layoutFood.addView(v);
+
+
       listOfItems.add(nameOfItem);
 
       //if (nameOfItem.equals(listOfFood.get(2)))

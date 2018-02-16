@@ -1,10 +1,12 @@
 buildscript {
   repositories {
     jcenter()
+      google()
   }
   dependencies {
     classpath(
             'com.android.tools.build:gradle:3.0.1',
+            'com.google.gms:google-services:3.0.0'
     )
   }
 }
@@ -13,6 +15,7 @@ apply plugin: "com.android.application"
 
 repositories {
   jcenter()
+    google()
 }
 
 android {
@@ -45,8 +48,10 @@ dependencies {
       "com.tbruyelle.rxpermissions:rxpermissions:0.7.1@aar",
   )
   implementation("com.mikepenz:materialdrawer:5.6.0") { transitive = true }
+    implementation files('libs/unirest-java-1.4.10-SNAPSHOT-withDependency-ShadedForAndroid.jar')
 
   // For getting views without clunky findViewById
   implementation "com.jakewharton:butterknife:8.4.0"
   annotationProcessor "com.jakewharton:butterknife-compiler:8.4.0"
 }
+
