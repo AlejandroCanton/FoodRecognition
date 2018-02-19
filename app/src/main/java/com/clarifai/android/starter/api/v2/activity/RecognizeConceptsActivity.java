@@ -14,7 +14,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.text.InputType;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -80,20 +79,12 @@ public final class RecognizeConceptsActivity extends BaseActivity {
 
 
 
-
-
-
-
-
     //@BindView(R.id.item1) TextView item1;
     private List<Concept> concepts;
     private List<String> listOfItems;
-    private List<String> listOfFood;
     private String m_Text = "";
     private Resources resources;
     private String output = "";
-
-
 
 
   @NonNull private final RecognizeConceptsAdapter adapter = new RecognizeConceptsAdapter();
@@ -101,24 +92,13 @@ public final class RecognizeConceptsActivity extends BaseActivity {
   @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-
       resources = getResources();
-      listOfFood = new ArrayList<>();
+      fabNext.setVisibility(View.INVISIBLE);
 
       try
         {
           //Load the file from the raw folder - don't forget to OMIT the extension
           output = LoadFile("food", true);
-
-
-
-
-          //output to LogCat
-          Log.i("test", output);
-
-            //Toast toast = Toast.makeText(RecognizeConceptsActivity.this, output, Toast.LENGTH_LONG);
-            //Toast toast = Toast.makeText(RecognizeConceptsActivity.this, output, Toast.LENGTH_LONG);
-            //toast.show();
         }
         catch (IOException e)
         {
@@ -132,28 +112,22 @@ public final class RecognizeConceptsActivity extends BaseActivity {
 
   @Override protected void onStart() {
     super.onStart();
-
-    //resultsList.setLayoutManager(new LinearLayoutManager(this));
-    //resultsList.setAdapter(adapter);
   }
 
+  //Tries to use the gallery to pick an image
   @OnClick(R.id.fabUpload)
   void pickImage() {
       startActivityForResult(new Intent(Intent.ACTION_PICK).setType("image/*"), PICK_IMAGE);
 
   }
 
+  //Tries to use the camera to take a picture
   @OnClick(R.id.fabPhoto)
   void takeImage() {
       startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE), REQUEST_IMAGE_CAPTURE);
-
-      /*Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-      if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-          //takePictureIntent.setType("/image/*");
-          startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-      }*/
   }
 
+  //Prompts the user to write new items to the list
   @OnClick(R.id.fabAdd)
   void enterItem() {
 
@@ -161,26 +135,23 @@ public final class RecognizeConceptsActivity extends BaseActivity {
       AlertDialog.Builder builder = new AlertDialog.Builder(this);
       builder.setTitle("Add an ingredient");
 
-// Set up the input
+        // Set up the input
       final EditText input = new EditText(this);
-// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
       input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_CLASS_TEXT);
       builder.setView(input);
 
-// Set up the buttons
+        // Set up the buttons
       builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
           @Override
           public void onClick(DialogInterface dialog, int which) {
               m_Text = input.getText().toString();
-
 
               if (!listOfItems.contains(m_Text))
               {
                   addEntry(m_Text, (listOfItems.size()));
 
               }
-
-
 
           }
       });
@@ -196,18 +167,13 @@ public final class RecognizeConceptsActivity extends BaseActivity {
   }
 
 
+  //It starts the next activity with the contents of the list
   @OnClick(R.id.fabNext)
   void nextActivity()
   {
-      String message = "";
 
 
-      for (int i = 0; i < listOfItems.size(); i++)
-      {
-          message = message + listOfItems.get(i) + ",";
-      }
-
-      Toast toast = Toast.makeText(RecognizeConceptsActivity.this, message, Toast.LENGTH_LONG);
+      Toast toast = Toast.makeText(RecognizeConceptsActivity.this, "Preparing Recipes", Toast.LENGTH_LONG);
       toast.show();
 
           JSONQuery query = new JSONQuery(listOfItems, getApplicationContext());
@@ -218,6 +184,8 @@ public final class RecognizeConceptsActivity extends BaseActivity {
   }
 
 
+  //Depending on the result from the select picture, take picture; it uses (or not)
+    // the image and sends it to be converted, so the ClarifAI API is able to recognize it
   @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     if (resultCode != RESULT_OK) {
       return;
@@ -229,10 +197,6 @@ public final class RecognizeConceptsActivity extends BaseActivity {
 
     if (requestCode == PICK_IMAGE) //|| requestCode == REQUEST_IMAGE_CAPTURE)
     {
-
-        Log.d("antes", "TODAVIA NO PASA NADA \n \n \n \n \n ");
-
-
 
       final byte[] imageBytes = ClarifaiUtil.retrieveSelectedImage(this, data, requestCode);
       if (imageBytes != null) {
@@ -253,6 +217,8 @@ public final class RecognizeConceptsActivity extends BaseActivity {
 
   }
 
+
+  //Sends the image picked to the ClarifAI API and uses the methods to filter and add with the results it gets
   private void onImagePicked(@NonNull final byte[] imageBytes) {
     // Now we will upload our image to the Clarifai API
     setBusy(true);
@@ -299,6 +265,7 @@ public final class RecognizeConceptsActivity extends BaseActivity {
   }
 
 
+  //Makes the filter of the ClarifAI API results with the previously loaded food-only file.
   private void filterBatch(@NonNull List<Concept> concepts)
   {
 
@@ -337,9 +304,10 @@ public final class RecognizeConceptsActivity extends BaseActivity {
     });
   }
 
+
+  //Adds the item to the list, both on the view and on the model
   public void addEntry(String nameOfItem, int count)
   {
-
 
       if (count == 8)
       {
@@ -354,28 +322,13 @@ public final class RecognizeConceptsActivity extends BaseActivity {
       labelText.setText(nameOfItem);
 
       layoutFood.addView(layoutNewItem);
-
-
-      View v = new View(this);
-      v.setLayoutParams(new LinearLayout.LayoutParams(
-              LinearLayout.LayoutParams.MATCH_PARENT,
-              5
-      ));
-      v.setBackgroundColor(Color.parseColor("#B3B3B3"));
-
-      layoutFood.addView(v);
-
-
       listOfItems.add(nameOfItem);
+      fabNext.setVisibility(VISIBLE);
 
-      //if (nameOfItem.equals(listOfFood.get(2)))
-      //{
-          //Toast toast = Toast.makeText(RecognizeConceptsActivity.this, nameOfItem, Toast.LENGTH_LONG);
-          //toast.show();
-      //}
 
   }
 
+    //Deletes the item from the list, both on the view and on the model
     public void deleteCurrent(View view) {
 
       ImageView deleteImage = (ImageView) view;
@@ -388,16 +341,26 @@ public final class RecognizeConceptsActivity extends BaseActivity {
       LinearLayout theBigLayout = (LinearLayout) layoutParent.getParent();
       theBigLayout.removeViewAt(deleteCurrent);
 
-      for (int i = deleteCurrent; i < this.listOfItems.size(); i++)
+      if(listOfItems.size() == 0)
       {
-          layoutFood.getChildAt(i).setId(i);
+          fabNext.setVisibility(View.INVISIBLE);
+          imageView.setImageBitmap(null);
+      }else {
 
+          for (int i = deleteCurrent; i < this.listOfItems.size(); i++)
+          {
+              layoutFood.getChildAt(i).setId(i);
+
+          }
       }
+
+
 
 
     }
 
 
+    //Loads the file with words related to food, used to filter the results from ClarifAI API
     public String LoadFile(String fileName, boolean loadFromRawFolder) throws IOException
 {
           //Create a InputStream to read the file into

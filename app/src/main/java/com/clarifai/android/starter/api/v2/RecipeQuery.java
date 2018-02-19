@@ -44,7 +44,7 @@ public class RecipeQuery extends AsyncTask {
         try{
             Log.d("TAG", "in here");
             HttpResponse<JsonNode> response = Unirest.get(url)
-                    .header("X-Mashape-Key", "cImbt393XOmshEN3Hr6fCmTpuN7dp1On8Oejsnq5uIbToxWY7T")
+                    .header("X-Mashape-Key", "YOUR_SPOONACULAR_API_KEY_HERE")
                     .header("Accept", "application/json")
                     .asJson();
             this.jsonArray = response.getBody().getArray();

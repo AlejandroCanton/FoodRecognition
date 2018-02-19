@@ -30,7 +30,7 @@ public class JSONQuery extends AsyncTask{
     private Context context;
 
     public JSONQuery(List<String> ingredients, Context context){
-        Log.d("Constructor", "in here!");
+
         this.ingredients = ingredients;
         this.url = "https://spoonacular-recipe-food-nutrition-v1.p.mashape.com/recipes/findByIngredients?fillIngredients=false&ingredients=";
         this.dishes = new ArrayList<Dish>(5);
@@ -53,7 +53,6 @@ public class JSONQuery extends AsyncTask{
     }
 
     public void addDishes() throws JSONException {
-        Log.d("TAG", "inside add dishes");
         for(int i = 0; i < 5; i++) {
             JSONObject dish = this.jsonArray.getJSONObject(i);
             String x = dish.toString();
@@ -67,11 +66,9 @@ public class JSONQuery extends AsyncTask{
     @Override
     protected Void doInBackground(Object[] params) {
 
-        App state = App.get();
         try{
-            Log.d("TAG", "in here");
             HttpResponse<JsonNode> response = Unirest.get(url)
-                    .header("X-Mashape-Key", "cImbt393XOmshEN3Hr6fCmTpuN7dp1On8Oejsnq5uIbToxWY7T")
+                    .header("X-Mashape-Key", "YOUR_SPOONACULAR_API_KEY_HERE")
                     .header("Accept", "application/json")
                     .asJson();
             this.jsonArray = response.getBody().getArray();

@@ -39,7 +39,6 @@ public final class ClarifaiUtil {
     Bitmap bitmap = null;
     try {
 
-
       if (requestCode == PICK_IMAGE)
       {
         inStream = context.getContentResolver().openInputStream(data.getData());
@@ -51,9 +50,6 @@ public final class ClarifaiUtil {
         bitmap = (Bitmap) extras.get("data");
 
       }
-
-      //HEREEEEEE is the difference between getting from gallery or using the camera
-
 
       final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
       bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);

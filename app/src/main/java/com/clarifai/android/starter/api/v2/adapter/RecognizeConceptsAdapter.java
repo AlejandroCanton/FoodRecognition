@@ -53,8 +53,6 @@ public class RecognizeConceptsAdapter extends RecyclerView.Adapter<RecognizeConc
     @BindView(R.id.probability) TextView probability;
     @BindView(R.id.listCheckbox) CheckBox listCheckbox;
 
-
-
     public Holder(View root) {
       super(root);
       ButterKnife.bind(this, root);
