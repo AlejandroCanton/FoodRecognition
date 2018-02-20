@@ -14,7 +14,11 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.text.InputType;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -42,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
+import java.util.zip.Inflater;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -73,17 +78,17 @@ public final class RecognizeConceptsActivity extends BaseActivity {
   // the FAB that the user clicks to go to next activity
   @BindView(R.id.fabNext) View fabNext;
 
-
-    //big layout for food
+  // big layout for food
   @BindView(R.id.layout_foods) LinearLayout layoutFood;
 
 
 
     //@BindView(R.id.item1) TextView item1;
+    private List<String> listOfFood;
     private List<Concept> concepts;
     private List<String> listOfItems;
-    private String m_Text = "";
     private Resources resources;
+    private String m_Text = "";
     private String output = "";
 
 
@@ -93,12 +98,21 @@ public final class RecognizeConceptsActivity extends BaseActivity {
     super.onCreate(savedInstanceState);
 
       resources = getResources();
+      listOfItems = new ArrayList<>();
+      listOfFood = new ArrayList<>();
       fabNext.setVisibility(View.INVISIBLE);
 
       try
         {
           //Load the file from the raw folder - don't forget to OMIT the extension
           output = LoadFile("food", true);
+
+            Scanner scanner = new Scanner(output);
+
+            while (scanner.hasNext())
+            {
+                listOfFood.add(scanner.nextLine());
+            }
         }
         catch (IOException e)
         {
@@ -131,12 +145,15 @@ public final class RecognizeConceptsActivity extends BaseActivity {
   @OnClick(R.id.fabAdd)
   void enterItem() {
 
-
       AlertDialog.Builder builder = new AlertDialog.Builder(this);
       builder.setTitle("Add an ingredient");
 
+      ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+              android.R.layout.simple_dropdown_item_1line, listOfFood);
+
         // Set up the input
-      final EditText input = new EditText(this);
+      final AutoCompleteTextView input = new AutoCompleteTextView(this);
+      input.setAdapter(adapter);
         // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
       input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_CLASS_TEXT);
       builder.setView(input);
@@ -147,12 +164,25 @@ public final class RecognizeConceptsActivity extends BaseActivity {
           public void onClick(DialogInterface dialog, int which) {
               m_Text = input.getText().toString();
 
-              if (!listOfItems.contains(m_Text))
+              if (listOfFood.contains(m_Text))
               {
-                  addEntry(m_Text, (listOfItems.size()));
-
+                  if (!listOfItems.contains(m_Text))
+                  {
+                      addEntry(m_Text, (listOfItems.size()));
+                  }
+                  else
+                  {
+                      Toast toast = Toast.makeText(RecognizeConceptsActivity.this, "The ingredient is already on the list. Please insert another one!", Toast.LENGTH_LONG);
+                      toast.show();
+                      enterItem();
+                  }
               }
-
+              else
+              {
+                  Toast toast = Toast.makeText(RecognizeConceptsActivity.this, "The ingredient is not a valid option. Please choose from the recommendations!", Toast.LENGTH_LONG);
+                  toast.show();
+                  enterItem();
+              }
           }
       });
       builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -161,30 +191,49 @@ public final class RecognizeConceptsActivity extends BaseActivity {
               dialog.cancel();
           }
       });
-
       builder.show();
 
   }
+
 
 
   //It starts the next activity with the contents of the list
   @OnClick(R.id.fabNext)
   void nextActivity()
   {
-
-
       Toast toast = Toast.makeText(RecognizeConceptsActivity.this, "Preparing Recipes", Toast.LENGTH_LONG);
       toast.show();
 
-          JSONQuery query = new JSONQuery(listOfItems, getApplicationContext());
-          query.setUrl();
-          query.execute();
-
+      JSONQuery query = new JSONQuery(listOfItems, getApplicationContext());
+      query.setUrl();
+      query.execute();
+      setBusy(true);
+      onPause();
 
   }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        fabNext.setVisibility(View.INVISIBLE);
 
-  //Depending on the result from the select picture, take picture; it uses (or not)
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        fabNext.setVisibility(View.INVISIBLE);
+        if (listOfItems.size() > 0)
+        {
+            fabNext.setVisibility(View.VISIBLE);
+            imageView.setVisibility(View.VISIBLE);
+        }
+
+    }
+
+
+    //Depending on the result from the select picture, take picture; it uses (or not)
     // the image and sends it to be converted, so the ClarifAI API is able to recognize it
   @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     if (resultCode != RESULT_OK) {
@@ -299,7 +348,7 @@ public final class RecognizeConceptsActivity extends BaseActivity {
       @Override public void run() {
         switcher.setDisplayedChild(busy ? 1 : 0);
         imageView.setVisibility(busy ? GONE : VISIBLE);
-        fabUpload.setEnabled(!busy);
+        //fabUpload.setEnabled(!busy);
       }
     });
   }
@@ -309,7 +358,7 @@ public final class RecognizeConceptsActivity extends BaseActivity {
   public void addEntry(String nameOfItem, int count)
   {
 
-      if (count == 8)
+      if (count >= 8)
       {
           return;
       }
@@ -322,7 +371,7 @@ public final class RecognizeConceptsActivity extends BaseActivity {
       labelText.setText(nameOfItem);
 
       layoutFood.addView(layoutNewItem);
-      listOfItems.add(nameOfItem);
+      listOfItems.add(nameOfItem.replace(' ', '-'));
       fabNext.setVisibility(VISIBLE);
 
 
