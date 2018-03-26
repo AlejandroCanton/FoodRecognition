@@ -222,10 +222,12 @@ public final class RecognizeConceptsActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        //setBusy(false);
 
         fabNext.setVisibility(View.INVISIBLE);
         if (listOfItems.size() > 0)
         {
+            layoutFood.setVisibility(VISIBLE);
             fabNext.setVisibility(View.VISIBLE);
             imageView.setVisibility(View.VISIBLE);
         }
@@ -347,6 +349,7 @@ public final class RecognizeConceptsActivity extends BaseActivity {
     runOnUiThread(new Runnable() {
       @Override public void run() {
         switcher.setDisplayedChild(busy ? 1 : 0);
+        layoutFood.setVisibility(busy ? GONE : VISIBLE);
         imageView.setVisibility(busy ? GONE : VISIBLE);
         //fabUpload.setEnabled(!busy);
       }
