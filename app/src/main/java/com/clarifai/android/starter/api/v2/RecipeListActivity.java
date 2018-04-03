@@ -7,12 +7,15 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import com.clarifai.android.starter.api.v2.adapter.RecipeListAdapter;
 
 import java.util.List;
 
 public class RecipeListActivity extends AppCompatActivity {
 
-    private final String TAG = "Main Activity";
+    private final String TAG = "Recipe Activity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,18 +28,26 @@ public class RecipeListActivity extends AppCompatActivity {
         App state = App.get();
         List<Dish> dishes = state.getDishes();
         String[] titles = new String[dishes.size()];
+        String[] images = new String[dishes.size()];
+
         for (int i = 0; i < dishes.size(); ++i) {
             titles[i] = dishes.get(i).getTitle();
+            images[i] = dishes.get(i).getImage();
         }
 
         // Set the listview to display all questions
         ListView listView = (ListView)findViewById(R.id.recipeListView);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1,
-                android.R.id.text1,
-                titles);
+
+        RecipeListAdapter adapter= new RecipeListAdapter(this,
+                titles,
+                images);
 
         listView.setAdapter(adapter);
+
+
+        //startQueryRecipe();
+
+
 
         // Set the onclick function of each item to go to the quiz activity while passing in
         // selection data
@@ -60,30 +71,30 @@ public class RecipeListActivity extends AppCompatActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
-        Log.i(TAG, "The main activity for Quiz Droid has restarted");
+        Log.i(TAG, "The Recipes activity has restarted");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        Log.i(TAG, "The main activity for Quiz Droid has paused");
+        Log.i(TAG, "The Recipes activity has paused");
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        Log.i(TAG, "The main activity for Quiz Droid has started");
+        Log.i(TAG, "The Recipes activity has started");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i(TAG, "The main activity for Quiz Droid has resumed");
+        Log.i(TAG, "The Recipes activity has resumed");
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        Log.e(TAG, "The main activity for Quiz Droid has stopped");
+        Log.i(TAG, "The Recipes activity has stopped");
     }
 }

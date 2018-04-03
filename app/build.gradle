@@ -39,6 +39,7 @@ dependencies {
 
       "com.clarifai.clarifai-api2:core:2.2.+",
 
+
       // For logging our HTTP outbound + inbound data
       "com.jakewharton.timber:timber:4.3.0",
       "com.squareup.okhttp3:logging-interceptor:3.4.1",
@@ -48,7 +49,9 @@ dependencies {
       "com.tbruyelle.rxpermissions:rxpermissions:0.7.1@aar",
   )
   implementation("com.mikepenz:materialdrawer:5.6.0") { transitive = true }
-    implementation files('libs/unirest-java-1.4.10-SNAPSHOT-withDependency-ShadedForAndroid.jar')
+  implementation files('libs/unirest-java-1.4.10-SNAPSHOT-withDependency-ShadedForAndroid.jar')
+  implementation files('libs/picasso-2.5.2.jar')
+
 
   // For getting views without clunky findViewById
   implementation "com.jakewharton:butterknife:8.4.0"

@@ -14,6 +14,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import timber.log.Timber;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -28,6 +29,8 @@ public class App extends Application {
   private List<Dish> dishes;
   private int position;
   private JSONArray currentRecipe;
+
+  private ArrayList<String> ingredientList;
 
   @NonNull
   public static App get() {
@@ -53,7 +56,7 @@ public class App extends Application {
     currentRecipe = arr;
   }
 
-  public String makeRecipe() throws JSONException {
+  public Recipe makeRecipe() throws JSONException {
     JSONObject object = currentRecipe.getJSONObject(0);
     String title = object.getString("title");
     int minutes = object.getInt("readyInMinutes");
@@ -62,7 +65,7 @@ public class App extends Application {
     String url = object.getString("sourceUrl");
     JSONArray steps = object.getJSONArray("analyzedInstructions");
     Recipe recipe = new Recipe(title,id,minutes,url,ingredients, steps);
-    return url;
+    return recipe;
   }
 
   @Override

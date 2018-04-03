@@ -42,18 +42,18 @@
                     android:layout_weight="1"
                     android:background="@color/material_drawer_background"
                     android:orientation="vertical"
-                    android:paddingLeft="25dp"
-                    android:paddingRight="25dp"
-                    android:paddingTop="25dp">
+                    android:paddingLeft="15dp"
+                    android:paddingRight="15dp"
+                    android:paddingTop="20dp">
       </LinearLayout>
 
           <ImageView
               android:id="@+id/image"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:layout_marginTop="300dp"
+              android:layout_marginTop="400dp"
               android:layout_gravity="bottom"
-              android:paddingBottom="75dp"
+              android:paddingBottom="100dp"
               android:background="?android:windowBackground"
               />
 

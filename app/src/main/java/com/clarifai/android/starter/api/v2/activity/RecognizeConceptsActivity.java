@@ -35,6 +35,7 @@ import clarifai2.dto.model.output.ClarifaiOutput;
 import clarifai2.dto.prediction.Concept;
 import com.clarifai.android.starter.api.v2.App;
 import com.clarifai.android.starter.api.v2.ClarifaiUtil;
+import com.clarifai.android.starter.api.v2.IngredientDataSingleton;
 import com.clarifai.android.starter.api.v2.JSONQuery;
 import com.clarifai.android.starter.api.v2.R;
 import com.clarifai.android.starter.api.v2.adapter.RecognizeConceptsAdapter;
@@ -55,6 +56,10 @@ public final class RecognizeConceptsActivity extends BaseActivity {
 
   public static final int PICK_IMAGE = 100;
   public static final int REQUEST_IMAGE_CAPTURE = 99;
+    private final String TAG = "Ingredients Activity";
+
+    public IngredientDataSingleton singleton;
+
 
 
     // the list of results that were returned from the API
@@ -89,7 +94,6 @@ public final class RecognizeConceptsActivity extends BaseActivity {
     private List<String> listOfItems;
     private Resources resources;
     private String m_Text = "";
-    private String output = "";
 
 
   @NonNull private final RecognizeConceptsAdapter adapter = new RecognizeConceptsAdapter();
@@ -101,32 +105,105 @@ public final class RecognizeConceptsActivity extends BaseActivity {
       listOfItems = new ArrayList<>();
       listOfFood = new ArrayList<>();
       fabNext.setVisibility(View.INVISIBLE);
+      createSingleton();
+
+
+  }
+
+    private void createSingleton() {
+
+        List<String> ingredientList = populateIngredienteList();
+
+        if (ingredientList != null){
+
+            singleton = IngredientDataSingleton.getInstance();
+            singleton.setIngredientData(ingredientList);
+
+            Log.i("SINGLETON      ", "SETTING SUCCEED");
+
+            listOfFood = singleton.getIngredientData();
+
+            Log.i("SINGLETON      ", "GETTING SUCCEED");
+
+        }else{
+            createSingleton();
+        }
+    }
+
+    public List<String> populateIngredienteList (){
 
       try
-        {
+      {
           //Load the file from the raw folder - don't forget to OMIT the extension
-          output = LoadFile("food", true);
+          String output = LoadFile("food", true);
+          List<String> listOfFood = new ArrayList<>();
 
-            Scanner scanner = new Scanner(output);
+          Scanner scanner = new Scanner(output);
 
-            while (scanner.hasNext())
-            {
-                listOfFood.add(scanner.nextLine());
-            }
-        }
-        catch (IOException e)
-        {
+          while (scanner.hasNext())
+          {
+              listOfFood.add(scanner.nextLine());
+          }
+
+          return listOfFood;
+      }
+      catch (IOException e)
+      {
           //display an error toast message
           Toast toast = Toast.makeText(RecognizeConceptsActivity.this, "File: not found!", Toast.LENGTH_LONG);
           toast.show();
-        }
+          return null;
+      }
+
 
 
   }
 
   @Override protected void onStart() {
     super.onStart();
+    Log.i(TAG, "The Detection activity has started");
   }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.i(TAG, "The Detection activity has paused");
+
+        fabNext.setVisibility(View.INVISIBLE);
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i(TAG, "The Detection activity has resumed");
+
+        //setBusy(false);
+
+        fabNext.setVisibility(View.INVISIBLE);
+        if (listOfItems.size() > 0)
+        {
+            layoutFood.setVisibility(VISIBLE);
+            fabNext.setVisibility(View.VISIBLE);
+            imageView.setVisibility(View.VISIBLE);
+            setBusy(false);
+        }
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i(TAG, "The Detection activity has stopped");
+
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.i(TAG, "The Detection activity has restarted");
+
+    }
 
   //Tries to use the gallery to pick an image
   @OnClick(R.id.fabUpload)
@@ -168,7 +245,7 @@ public final class RecognizeConceptsActivity extends BaseActivity {
               {
                   if (!listOfItems.contains(m_Text))
                   {
-                      addEntry(m_Text, (listOfItems.size()));
+                      addEntry(m_Text);
                   }
                   else
                   {
@@ -195,8 +272,6 @@ public final class RecognizeConceptsActivity extends BaseActivity {
 
   }
 
-
-
   //It starts the next activity with the contents of the list
   @OnClick(R.id.fabNext)
   void nextActivity()
@@ -211,29 +286,6 @@ public final class RecognizeConceptsActivity extends BaseActivity {
       onPause();
 
   }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        fabNext.setVisibility(View.INVISIBLE);
-
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        //setBusy(false);
-
-        fabNext.setVisibility(View.INVISIBLE);
-        if (listOfItems.size() > 0)
-        {
-            layoutFood.setVisibility(VISIBLE);
-            fabNext.setVisibility(View.VISIBLE);
-            imageView.setVisibility(View.VISIBLE);
-        }
-
-    }
-
 
     //Depending on the result from the select picture, take picture; it uses (or not)
     // the image and sends it to be converted, so the ClarifAI API is able to recognize it
@@ -321,24 +373,21 @@ public final class RecognizeConceptsActivity extends BaseActivity {
   {
 
       List<String> filteredNames = new ArrayList<>();
+      List<String> ingredientData = singleton.getIngredientData();
+
 
       for (Concept c : concepts)
       {
-          Scanner scanner = new Scanner(output);
-
-          while (scanner.hasNext())
+          if (ingredientData.contains(c.name()))
           {
-              if (scanner.nextLine().equals(c.name()))
-              {
                   filteredNames.add(c.name());
-              }
           }
       }
 
       for (int i = 0; i < filteredNames.size(); i++)
       {
           String nameOfConcept = filteredNames.get(i);
-          addEntry(nameOfConcept, i);
+          addEntry(nameOfConcept);
       }
 
   }
@@ -351,25 +400,32 @@ public final class RecognizeConceptsActivity extends BaseActivity {
         switcher.setDisplayedChild(busy ? 1 : 0);
         layoutFood.setVisibility(busy ? GONE : VISIBLE);
         imageView.setVisibility(busy ? GONE : VISIBLE);
-        //fabUpload.setEnabled(!busy);
+        fabUpload.setEnabled(!busy);
+        fabAdd.setEnabled(!busy);
+        fabNext.setEnabled(!busy);
+        fabPhoto.setEnabled(!busy);
+
       }
     });
   }
 
 
   //Adds the item to the list, both on the view and on the model
-  public void addEntry(String nameOfItem, int count)
+  public void addEntry(String nameOfItem)
   {
 
-      if (count >= 8)
+      if (listOfItems.size() >= 8)
       {
           return;
       }
 
       LinearLayout layoutNewItem = (LinearLayout) getLayoutInflater().inflate(R.layout.item_new, null);
-      layoutNewItem.setId(count);
+      layoutNewItem.setId(listOfItems.size());
 
-      TextView labelText  =  (TextView) layoutNewItem.getChildAt(0);
+
+      LinearLayout layoutInside = (LinearLayout) layoutNewItem.getChildAt(0);
+
+      TextView labelText  =  (TextView)  layoutInside.getChildAt(0);
 
       labelText.setText(nameOfItem);
 
@@ -385,7 +441,7 @@ public final class RecognizeConceptsActivity extends BaseActivity {
 
       ImageView deleteImage = (ImageView) view;
 
-      LinearLayout layoutParent = (LinearLayout) deleteImage.getParent();
+      LinearLayout layoutParent = (LinearLayout) deleteImage.getParent().getParent();
       int deleteCurrent = layoutParent.getId();
 
       this.listOfItems.remove(deleteCurrent);
@@ -414,38 +470,38 @@ public final class RecognizeConceptsActivity extends BaseActivity {
 
     //Loads the file with words related to food, used to filter the results from ClarifAI API
     public String LoadFile(String fileName, boolean loadFromRawFolder) throws IOException
-{
-          //Create a InputStream to read the file into
-          InputStream iS;
+    {
+        //Create a InputStream to read the file into
+        InputStream iS;
 
-          if (loadFromRawFolder)
-          {
+        if (loadFromRawFolder)
+        {
             //get the resource id from the file name
             //int rID = resources.getIdentifier("raw/"+fileName, null, null);
             //get the file as a stream
             iS = resources.openRawResource(R.raw.food);
-          }
-          else
-          {
+        }
+        else
+        {
             //get the file as a stream
             iS = resources.getAssets().open(fileName);
-          }
-
-          //create a buffer that has the same size as the InputStream
-          byte[] buffer = new byte[iS.available()];
-          //read the text file as a stream, into the buffer
-          iS.read(buffer);
-          //create a output stream to write the buffer into
-          ByteArrayOutputStream oS = new ByteArrayOutputStream();
-          //write this buffer to the output stream
-          oS.write(buffer);
-          //Close the Input and Output streams
-          oS.close();
-          iS.close();
-
-          //return the output stream as a String
-          return oS.toString();
         }
+
+        //create a buffer that has the same size as the InputStream
+        byte[] buffer = new byte[iS.available()];
+        //read the text file as a stream, into the buffer
+        iS.read(buffer);
+        //create a output stream to write the buffer into
+        ByteArrayOutputStream oS = new ByteArrayOutputStream();
+        //write this buffer to the output stream
+        oS.write(buffer);
+        //Close the Input and Output streams
+        oS.close();
+        iS.close();
+
+        //return the output stream as a String
+        return oS.toString();
+    }
 
 
 }

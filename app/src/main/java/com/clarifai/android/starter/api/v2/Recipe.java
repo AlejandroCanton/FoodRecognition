@@ -48,7 +48,7 @@ public class Recipe {
             String outputString = "";
             JSONObject ingredient = ingredients.getJSONObject(i);
             outputString += ingredient.getInt("amount") + " ";
-            outputString += ingredient.getString("unitLong") + " ";
+            //outputString += ingredient.getString("unitLong") + " ";
             outputString += ingredient.getString("name");
             output[i] = outputString;
         }
