@@ -83,8 +83,12 @@ public final class RecognizeConceptsActivity extends BaseActivity {
   // the FAB that the user clicks to go to next activity
   @BindView(R.id.fabNext) View fabNext;
 
+  @BindView(R.id.fabDelete) View fabDelete;
+
   // big layout for food
   @BindView(R.id.layout_foods) LinearLayout layoutFood;
+
+  @BindView(R.id.layout_help) LinearLayout layoutHelp;
 
 
 
@@ -202,26 +206,38 @@ public final class RecognizeConceptsActivity extends BaseActivity {
     protected void onRestart() {
         super.onRestart();
         Log.i(TAG, "The Detection activity has restarted");
+    }
+
+    @OnClick(R.id.fabDelete)
+    void deleteAll(View view){
+
+        layoutHelp.setVisibility(VISIBLE);
+        Log.i(TAG, "DELETE has been clicked");
+
+
+        concepts = new ArrayList<>();
+        layoutFood.removeAllViews();
+        listOfItems = new ArrayList<>();
+        imageView.setVisibility(View.INVISIBLE);
+
 
     }
 
   //Tries to use the gallery to pick an image
   @OnClick(R.id.fabUpload)
-  void pickImage() {
+  void pickImage(View view) {
       startActivityForResult(new Intent(Intent.ACTION_PICK).setType("image/*"), PICK_IMAGE);
-
   }
 
   //Tries to use the camera to take a picture
   @OnClick(R.id.fabPhoto)
-  void takeImage() {
+  void takeImage(View view) {
       startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE), REQUEST_IMAGE_CAPTURE);
   }
 
   //Prompts the user to write new items to the list
   @OnClick(R.id.fabAdd)
   void enterItem() {
-
       AlertDialog.Builder builder = new AlertDialog.Builder(this);
       builder.setTitle("Add an ingredient");
 
@@ -245,6 +261,7 @@ public final class RecognizeConceptsActivity extends BaseActivity {
               {
                   if (!listOfItems.contains(m_Text))
                   {
+                      layoutHelp.setVisibility(View.INVISIBLE);
                       addEntry(m_Text);
                   }
                   else
@@ -272,9 +289,14 @@ public final class RecognizeConceptsActivity extends BaseActivity {
 
   }
 
+  void enterItem(View view)
+  {
+      enterItem();
+  }
+
   //It starts the next activity with the contents of the list
   @OnClick(R.id.fabNext)
-  void nextActivity()
+  void nextActivity(View view)
   {
       Toast toast = Toast.makeText(RecognizeConceptsActivity.this, "Preparing Recipes", Toast.LENGTH_LONG);
       toast.show();
@@ -295,6 +317,7 @@ public final class RecognizeConceptsActivity extends BaseActivity {
     }
 
     concepts = new ArrayList<>();
+    layoutHelp.setVisibility(View.INVISIBLE);
     layoutFood.removeAllViews();
     listOfItems = new ArrayList<>();
 
