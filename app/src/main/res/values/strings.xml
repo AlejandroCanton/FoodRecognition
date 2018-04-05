@@ -1,15 +1,19 @@
 <resources>
-    <string name="clarifai_api_key">"YOUR_CLARIFAI_API_KEY_HERE"</string>
+    <string name="clarifai_api_key">YOUR_CLARIFAI_API_KEY_HERE</string>
     <string name="spoonacular_api_key">YOUR_SPOONACULAR_API_KEY_HERE</string>
 
-
     <string name="app_name">ELECTROLUX - Recipe Assistant</string>
-
     <string name="error_external_storage_permission_not_granted">You must accept this permission so we can upload your images!</string>
-
     <string name="error_while_contacting_api">Error while contacting Clarifai API</string>
     <string name="no_results_from_api">API did not return any results</string>
+    <string name="upload_image_hint">Click a blue or yellow button from the list to start!</string>
 
-    <string name="upload_image_hint">Click the button in the bottom-right corner to upload an image!</string>
+    <string name="help_info_delete">Return to the beginning and start over!</string>
+    <string name="help_info_camera">Take a picture with your phone to detect the food ingredients in it!</string>
+    <string name="help_info_upload">Upload an image from your gallery to detect the food ingredients in it!</string>
+    <string name="help_info_add">Add ingredients one by one, for the ones hidden in the fridge!</string>
+    <string name="help_info_next">Once the ingredients have been added, you are good to go on to the next step!</string>
+
+
 
 </resources>

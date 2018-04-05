@@ -4,8 +4,11 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -35,12 +38,14 @@ import clarifai2.dto.model.output.ClarifaiOutput;
 import clarifai2.dto.prediction.Concept;
 import com.clarifai.android.starter.api.v2.App;
 import com.clarifai.android.starter.api.v2.ClarifaiUtil;
+import com.clarifai.android.starter.api.v2.ExifUtils;
 import com.clarifai.android.starter.api.v2.IngredientDataSingleton;
 import com.clarifai.android.starter.api.v2.JSONQuery;
 import com.clarifai.android.starter.api.v2.R;
 import com.clarifai.android.starter.api.v2.adapter.RecognizeConceptsAdapter;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -309,6 +314,23 @@ public final class RecognizeConceptsActivity extends BaseActivity {
 
   }
 
+
+
+
+    private String getRealPathFromURI(Uri contentURI) {
+        String result;
+        Cursor cursor = getContentResolver().query(contentURI, null, null, null, null);
+        if (cursor == null) { // Source is Dropbox or other similar local file path
+            result = contentURI.getPath();
+        } else {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+            result = cursor.getString(idx);
+            cursor.close();
+        }
+        return result;
+    }
+
     //Depending on the result from the select picture, take picture; it uses (or not)
     // the image and sends it to be converted, so the ClarifAI API is able to recognize it
   @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -324,8 +346,26 @@ public final class RecognizeConceptsActivity extends BaseActivity {
     if (requestCode == PICK_IMAGE) //|| requestCode == REQUEST_IMAGE_CAPTURE)
     {
 
-      final byte[] imageBytes = ClarifaiUtil.retrieveSelectedImage(this, data, requestCode);
+        Uri selectedImageURI = data.getData();
+        File imageFile = new File(getRealPathFromURI(selectedImageURI));
+        Bitmap bitmap= decodeFile(imageFile.getPath());
+
+
+        /*if (requestCode == PICK_IMAGE)
+      {
+        inStream = context.getContentResolver().openInputStream(data.getData());
+        bitmap = BitmapFactory.decodeStream(inStream);
+
+      } else if (requestCode == REQUEST_IMAGE_CAPTURE)
+      {
+        Bundle extras = data.getExtras();
+        bitmap = (Bitmap) extras.get("data");
+
+      }*/
+
+      final byte[] imageBytes = ClarifaiUtil.retrieveSelectedImage(this, bitmap, requestCode);
       if (imageBytes != null) {
+
         onImagePicked(imageBytes);
       }
     }
@@ -333,7 +373,9 @@ public final class RecognizeConceptsActivity extends BaseActivity {
       if (requestCode == REQUEST_IMAGE_CAPTURE)
       {
 
-        final byte[] imageBytes = ClarifaiUtil.retrieveSelectedImage(this, data, requestCode);
+          Bundle extras = data.getExtras();
+          Bitmap bitmap = (Bitmap) extras.get("data");
+        final byte[] imageBytes = ClarifaiUtil.retrieveSelectedImage(this, bitmap, requestCode);
         if (imageBytes != null) {
           onImagePicked(imageBytes);
         }
@@ -525,6 +567,40 @@ public final class RecognizeConceptsActivity extends BaseActivity {
         //return the output stream as a String
         return oS.toString();
     }
+
+    public Bitmap decodeFile(String filePath) {
+
+        // Decode image size
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(filePath, o);
+
+        // The new size we want to scale to
+        final int REQUIRED_SIZE = 1024;
+
+        // Find the correct scale value. It should be the power of 2.
+        int width_tmp = o.outWidth, height_tmp = o.outHeight;
+        int scale = 1;
+        while (true) {
+            if (width_tmp < REQUIRED_SIZE && height_tmp < REQUIRED_SIZE)
+                break;
+            width_tmp /= 2;
+            height_tmp /= 2;
+            scale *= 2;
+        }
+
+        // Decode with inSampleSize
+        BitmapFactory.Options o2 = new BitmapFactory.Options();
+        o2.inSampleSize = scale;
+        Bitmap b1 = BitmapFactory.decodeFile(filePath, o2);
+        Bitmap b= ExifUtils.rotateBitmap(filePath, b1);
+
+        return b;
+
+        // image.setImageBitmap(bitmap);
+    }
+
+
 
 
 }

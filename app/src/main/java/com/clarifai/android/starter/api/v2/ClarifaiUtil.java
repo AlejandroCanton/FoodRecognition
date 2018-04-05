@@ -30,16 +30,16 @@ public final class ClarifaiUtil {
    * @return
    */
   @Nullable
-  public static byte[] retrieveSelectedImage(@NonNull Context context, @NonNull Intent data, @NonNull int requestCode) {
+  public static byte[] retrieveSelectedImage(@NonNull Context context, @NonNull Bitmap bitmap, @NonNull int requestCode) {
 
     final int PICK_IMAGE = 100;
     final int REQUEST_IMAGE_CAPTURE = 99;
 
     InputStream inStream = null;
-    Bitmap bitmap = null;
-    try {
+    //Bitmap bitmap = null;
+    //try {
 
-      if (requestCode == PICK_IMAGE)
+      /*if (requestCode == PICK_IMAGE)
       {
         inStream = context.getContentResolver().openInputStream(data.getData());
         bitmap = BitmapFactory.decodeStream(inStream);
@@ -49,12 +49,13 @@ public final class ClarifaiUtil {
         Bundle extras = data.getExtras();
         bitmap = (Bitmap) extras.get("data");
 
-      }
+      }*/
 
       final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
       bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
       return outStream.toByteArray();
-    } catch (FileNotFoundException e) {
+
+    /*} catch (FileNotFoundException e) {
       return null;
     } finally {
       if (inStream != null) {
@@ -66,8 +67,9 @@ public final class ClarifaiUtil {
       if (bitmap != null) {
         bitmap.recycle();
       }
+      */
     }
-  }
+
 
   @NonNull
   public static Activity unwrapActivity(@NonNull Context startFrom) {
