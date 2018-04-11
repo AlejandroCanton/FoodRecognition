@@ -7,7 +7,9 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,6 +19,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.text.InputType;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -64,6 +67,8 @@ public final class RecognizeConceptsActivity extends BaseActivity {
     private final String TAG = "Ingredients Activity";
 
     public IngredientDataSingleton singleton;
+
+    private Bitmap bigBitmap;
 
 
 
@@ -214,36 +219,58 @@ public final class RecognizeConceptsActivity extends BaseActivity {
     }
 
     @OnClick(R.id.fabDelete)
-    void deleteAll(View view){
+    void deleteAll(){
 
         layoutHelp.setVisibility(VISIBLE);
         Log.i(TAG, "DELETE has been clicked");
-
 
         concepts = new ArrayList<>();
         layoutFood.removeAllViews();
         listOfItems = new ArrayList<>();
         imageView.setVisibility(View.INVISIBLE);
+        bigBitmap = null;
 
 
     }
 
+
+    private boolean checkIfListIsFull(){
+
+        if (listOfItems.size() == 8){
+
+            Toast toast = Toast.makeText(RecognizeConceptsActivity.this, "It is not necessary to add more ingredients, we can provide a good recipe with this amount!", Toast.LENGTH_LONG);
+            toast.show();
+
+
+            return true;
+        }
+
+        return false;
+    }
+
   //Tries to use the gallery to pick an image
   @OnClick(R.id.fabUpload)
-  void pickImage(View view) {
+  void pickImage() {
+        if (!checkIfListIsFull())
       startActivityForResult(new Intent(Intent.ACTION_PICK).setType("image/*"), PICK_IMAGE);
   }
 
   //Tries to use the camera to take a picture
   @OnClick(R.id.fabPhoto)
-  void takeImage(View view) {
-      startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE), REQUEST_IMAGE_CAPTURE);
+  void takeImage() {
+      if (!checkIfListIsFull())
+          startActivityForResult(new Intent(MediaStore.ACTION_IMAGE_CAPTURE), REQUEST_IMAGE_CAPTURE);
   }
+
 
   //Prompts the user to write new items to the list
   @OnClick(R.id.fabAdd)
   void enterItem() {
-      AlertDialog.Builder builder = new AlertDialog.Builder(this);
+      if (!checkIfListIsFull()){
+
+
+
+          AlertDialog.Builder builder = new AlertDialog.Builder(this);
       builder.setTitle("Add an ingredient");
 
       ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
@@ -292,16 +319,14 @@ public final class RecognizeConceptsActivity extends BaseActivity {
       });
       builder.show();
 
+      }
+
   }
 
-  void enterItem(View view)
-  {
-      enterItem();
-  }
 
   //It starts the next activity with the contents of the list
   @OnClick(R.id.fabNext)
-  void nextActivity(View view)
+  void nextActivity()
   {
       Toast toast = Toast.makeText(RecognizeConceptsActivity.this, "Preparing Recipes", Toast.LENGTH_LONG);
       toast.show();
@@ -313,8 +338,6 @@ public final class RecognizeConceptsActivity extends BaseActivity {
       onPause();
 
   }
-
-
 
 
     private String getRealPathFromURI(Uri contentURI) {
@@ -340,8 +363,8 @@ public final class RecognizeConceptsActivity extends BaseActivity {
 
     concepts = new ArrayList<>();
     layoutHelp.setVisibility(View.INVISIBLE);
-    layoutFood.removeAllViews();
-    listOfItems = new ArrayList<>();
+    //layoutFood.removeAllViews();
+    //listOfItems = new ArrayList<>();
 
     if (requestCode == PICK_IMAGE) //|| requestCode == REQUEST_IMAGE_CAPTURE)
     {
@@ -364,7 +387,19 @@ public final class RecognizeConceptsActivity extends BaseActivity {
       }*/
 
       final byte[] imageBytes = ClarifaiUtil.retrieveSelectedImage(this, bitmap, requestCode);
+
       if (imageBytes != null) {
+
+
+          bitmap = resizeBitmap(bitmap);
+          if (bigBitmap == null)
+          {
+              bigBitmap = bitmap;
+          }
+          else
+          {
+              bigBitmap = createSingleImageFromMultipleImages(bigBitmap, bitmap);
+          }
 
         onImagePicked(imageBytes);
       }
@@ -377,6 +412,17 @@ public final class RecognizeConceptsActivity extends BaseActivity {
           Bitmap bitmap = (Bitmap) extras.get("data");
         final byte[] imageBytes = ClarifaiUtil.retrieveSelectedImage(this, bitmap, requestCode);
         if (imageBytes != null) {
+
+            bitmap = resizeBitmap(bitmap);
+            if (bigBitmap == null)
+            {
+                bigBitmap = bitmap;
+            }
+            else
+            {
+                bigBitmap = createSingleImageFromMultipleImages(bigBitmap, bitmap);
+            }
+
           onImagePicked(imageBytes);
         }
       }
@@ -419,7 +465,8 @@ public final class RecognizeConceptsActivity extends BaseActivity {
         //adapter.setData(predictions.get(0).data());
           concepts = predictions.get(0).data();
           filterBatch(concepts);
-          imageView.setImageBitmap(BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length));
+          //imageView.setImageBitmap(BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length));
+          imageView.setImageBitmap(bigBitmap);
       }
 
       private void showErrorSnackbar(@StringRes int errorString) {
@@ -452,7 +499,15 @@ public final class RecognizeConceptsActivity extends BaseActivity {
       for (int i = 0; i < filteredNames.size(); i++)
       {
           String nameOfConcept = filteredNames.get(i);
-          addEntry(nameOfConcept);
+
+          if (listOfFood.contains(nameOfConcept)) {
+              if (!listOfItems.contains(nameOfConcept)) {
+                  layoutHelp.setVisibility(View.INVISIBLE);
+                  addEntry(nameOfConcept);
+              }
+          }
+
+
       }
 
   }
@@ -528,8 +583,6 @@ public final class RecognizeConceptsActivity extends BaseActivity {
       }
 
 
-
-
     }
 
 
@@ -600,6 +653,62 @@ public final class RecognizeConceptsActivity extends BaseActivity {
         // image.setImageBitmap(bitmap);
     }
 
+
+    public void takeImage(View view) {
+        takeImage();
+    }
+
+    public void pickImage(View view) {
+        pickImage();
+    }
+
+    public void enterItem(View view) {
+        enterItem();
+    }
+
+
+
+    public Bitmap createSingleImageFromMultipleImages(Bitmap c, Bitmap s) { // can add a 3rd parameter 'String loc' if you want to save the new image - left some code to do that at the bottom
+        Bitmap cs = null;
+
+
+        int width, height = 0;
+
+        width = c.getWidth() + s.getWidth();
+
+        if(c.getHeight() > s.getHeight()) {
+            height = c.getHeight();
+        } else {
+            height = s.getHeight();
+        }
+
+
+        cs = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
+        Canvas comboImage = new Canvas(cs);
+
+        comboImage.drawBitmap(c, 0f, 0f, null);
+        comboImage.drawBitmap(s, c.getWidth(), 0f, null);
+
+        // this is an extra bit I added, just incase you want to save the new image somewhere and then return the location
+    /*String tmpImg = String.valueOf(System.currentTimeMillis()) + ".png";
+
+    OutputStream os = null;
+    try {
+      os = new FileOutputStream(loc + tmpImg);
+      cs.compress(CompressFormat.PNG, 100, os);
+    } catch(IOException e) {
+      Log.e("combineImages", "problem combining images", e);
+    }*/
+
+        return cs;
+    }
+
+
+    private Bitmap resizeBitmap (Bitmap profileImage){
+
+        return Bitmap.createScaledBitmap(profileImage, 480, 480, false);
+    }
 
 
 

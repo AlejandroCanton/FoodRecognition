@@ -26,7 +26,6 @@ public final class ClarifaiUtil {
 
   /**
    * @param context
-   * @param data
    * @return
    */
   @Nullable

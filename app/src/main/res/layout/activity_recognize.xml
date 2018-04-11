@@ -46,71 +46,76 @@
                     android:paddingTop="20dp">
       </LinearLayout>
 
+
+
+          <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="100dp"
+              android:orientation="horizontal"
+              android:layout_gravity="bottom"
+              >
+
+
+              <android.support.design.widget.FloatingActionButton
+                  android:id="@+id/fabDelete"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:layout_weight="1"
+                  android:layout_margin="8dp"
+                  android:src="@android:drawable/ic_menu_revert"
+                  app:backgroundTint="@color/red"
+                  />
+
+              <android.support.design.widget.FloatingActionButton
+                  android:id="@+id/fabPhoto"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:layout_weight="1"
+                  android:layout_margin="8dp"
+                  android:src="@android:drawable/ic_menu_camera"
+                  app:backgroundTint="@color/blue"
+                  />
+
+              <android.support.design.widget.FloatingActionButton
+                  android:id="@+id/fabUpload"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:layout_weight="1"
+                  android:layout_margin="8dp"
+                  android:src="@android:drawable/ic_menu_upload"
+                  app:backgroundTint="@color/blue"
+                  />
+
+              <android.support.design.widget.FloatingActionButton
+                  android:id="@+id/fabAdd"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:layout_weight="1"
+                  android:layout_margin="8dp"
+                  android:src="@android:drawable/ic_menu_add"
+                  app:backgroundTint="@color/yellow"
+                  />
+
+              <android.support.design.widget.FloatingActionButton
+                  android:id="@+id/fabNext"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:layout_weight="1"
+                  android:layout_margin="8dp"
+                  android:src="@android:drawable/ic_media_play"
+                  app:backgroundTint="@color/turquoise" />
+          </LinearLayout>
+
           <ImageView
               android:id="@+id/image"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              android:layout_marginBottom="100dp"
               android:layout_marginTop="400dp"
               android:layout_gravity="bottom"
-              android:paddingBottom="100dp"
               android:background="?android:windowBackground"
               />
 
-          <android.support.design.widget.FloatingActionButton
-              android:id="@+id/fabDelete"
-              android:layout_width="64dp"
-              android:layout_height="64dp"
-              android:layout_gravity="left|bottom"
-              android:layout_margin="16dp"
-              android:src="@android:drawable/ic_menu_revert"
-              app:backgroundTint="@color/red"
-              />
-
-          <android.support.design.widget.FloatingActionButton
-              android:id="@+id/fabPhoto"
-              android:layout_width="64dp"
-              android:layout_height="64dp"
-              android:layout_gravity="bottom"
-              android:layout_marginBottom="16dp"
-              android:layout_marginLeft="88dp"
-              android:src="@android:drawable/ic_menu_camera"
-              app:backgroundTint="@color/blue"
-              />
-
-          <android.support.design.widget.FloatingActionButton
-              android:id="@+id/fabUpload"
-              android:layout_width="64dp"
-              android:layout_height="64dp"
-              android:layout_gravity="bottom"
-              android:layout_marginBottom="16dp"
-              android:layout_marginLeft="160dp"
-              android:src="@android:drawable/ic_menu_upload"
-              app:backgroundTint="@color/blue"
-              />
-
-          <android.support.design.widget.FloatingActionButton
-              android:id="@+id/fabAdd"
-              android:layout_width="64dp"
-              android:layout_height="64dp"
-              android:layout_gravity="bottom"
-              android:layout_marginBottom="16dp"
-              android:layout_marginLeft="232dp"
-              android:src="@android:drawable/ic_menu_add"
-              app:backgroundTint="@color/yellow"
-              />
-
-          <android.support.design.widget.FloatingActionButton
-              android:id="@+id/fabNext"
-              android:layout_width="64dp"
-              android:layout_height="64dp"
-              android:layout_gravity="end|bottom"
-              android:layout_marginBottom="16dp"
-              android:layout_marginEnd="16dp"
-              android:layout_marginRight="16dp"
-              android:layout_marginLeft="16dp"
-              android:src="@android:drawable/ic_media_play"
-              app:backgroundTint="@color/turquoise"
-              />
 
 
     </FrameLayout>

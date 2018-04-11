@@ -45,7 +45,7 @@ public class RecipeListAdapter extends ArrayAdapter<String> {
 
 
         //imageView.setImageResource(imgid[0]);
-        extratxt.setText("Description "+itemname[position]);
+        extratxt.setText("Ingredients, watermark, health info and stuff");
         return rowView;
 
     };
