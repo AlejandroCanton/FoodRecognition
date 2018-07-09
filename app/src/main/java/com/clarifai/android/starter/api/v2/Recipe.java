@@ -1,8 +1,13 @@
 package com.clarifai.android.starter.api.v2;
 
+import android.widget.LinearLayout;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by d95wang on 3/8/17.
@@ -16,6 +21,8 @@ public class Recipe {
     private String sourceURL;
     private JSONArray ingredients;
     private JSONArray instructions;
+    private String ingredientString;
+    private List<Ingredient> ingredientList;
 
     public Recipe(String title, int cooktime, int id, String source, JSONArray ingredients, JSONArray steps) {
         this.title = title;
@@ -24,6 +31,76 @@ public class Recipe {
         this.sourceURL = source;
         this.ingredients = ingredients;
         this.instructions = steps;
+        ingredientList = new ArrayList<>();
+    }
+
+    public float calculateWaterMark(){
+
+        List<Ingredient> ingredientList = this.ingredientList;
+        Ingredient ingredient;
+        float waterMark;
+        float waterMarkCount = 0;
+        int zerosCount = 0;
+
+        for (int i = 0; i < ingredientList.size(); i++)
+        {
+            ingredient = ingredientList.get(i);
+            waterMark = ingredient.getWater();
+
+            if (waterMark == 0){
+                zerosCount++;
+            }else {
+                waterMarkCount = waterMarkCount + waterMark;
+            }
+        }
+
+        if (zerosCount > (ingredientList.size() / 2)){
+            return -1;
+        }else {
+            return waterMarkCount;
+        }
+    }
+
+    public float calculateCarbonPrint() {
+
+        List<Ingredient> ingredientList = this.ingredientList;
+        Ingredient ingredient;
+        float carbonPrintCount = 0;
+        int zerosCount = 0;
+
+        for (int i = 0; i < ingredientList.size(); i++)
+        {
+            ingredient = ingredientList.get(i);
+            float carbonPrint = ingredient.getCarbon();
+
+            if (carbonPrint == 0){
+                zerosCount++;
+            }else {
+                carbonPrintCount += carbonPrint;
+            }
+        }
+
+        if (zerosCount > (ingredientList.size() / 2)){
+            return -1;
+        }else {
+            return carbonPrintCount;
+        }
+    }
+
+    public void setIngredientString(String ingredientString) {
+        this.ingredientString = ingredientString;
+    }
+
+    public String getIngredientString() {
+        return ingredientString;
+    }
+
+    public List<Ingredient> getIngredientList() {
+        return ingredientList;
+    }
+
+    public void addIngredientToList(Ingredient ingredient){
+        ingredientList.add(ingredient);
     }
 
     public String getTitle() {

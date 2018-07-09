@@ -1,5 +1,6 @@
 package com.clarifai.android.starter.api.v2;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,8 @@ public class IngredientDataSingleton {
 
     private static IngredientDataSingleton instance;
 
-    private List<String> ingredientList;
+    private List<Ingredient> ingredientList;
+    private List<String> ingredientNames;
 
 
     protected IngredientDataSingleton() {}
@@ -23,11 +25,28 @@ public class IngredientDataSingleton {
     }
 
 
-    public void setIngredientData(List<String> data){
-        this.ingredientList = data;
+    public void setIngredientNames(List<String> data){
+        this.ingredientNames = data;
     }
 
-    public List getIngredientData(){
-        return this.ingredientList;
+    public List getIngredientNames(){
+        return this.ingredientNames;
     }
+
+    public void setIngredientList(List<Ingredient> ingredientList) {
+        this.ingredientList =ingredientList;
+    }
+
+    public List<Ingredient> getIngredientList() {
+        return ingredientList;
+    }
+
+    public float getWaterMark(int i){
+        return ingredientList.get(i).getWater();
+    }
+
+    public float getCarbonPrint(int i){
+        return ingredientList.get(i).getCarbon();
+    }
+
 }

@@ -14,15 +14,60 @@
     <TextView
         android:text="Select a Recipe"
         android:textColor="@color/colorPrimary"
-        android:layout_width="368dp"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         tools:layout_editor_absoluteY="0dp"
-        tools:layout_editor_absoluteX="8dp" />
+        tools:layout_editor_absoluteX="8dp"
+        android:layout_weight="1"/>
 
     <ListView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:paddingTop="25dp"
         android:id="@+id/recipeListView"
+        android:layout_weight="12"
         />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        android:layout_weight="2">
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/bluefoot"
+            android:padding="10dp"
+            android:layout_weight="1"/>
+
+        <Switch
+            android:id="@+id/waterMark"
+            android:onClick="onClickWaterPrint"
+            android:text="Water Mark"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:padding="10dp"
+            android:layout_weight="3"/>
+
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/greenfoot"
+            android:padding="10dp"
+            android:layout_weight="1"/>
+
+        <Switch
+            android:id="@+id/carbonPrint"
+            android:onClick="onClickCarbonPrint"
+            android:text="Carbon Print"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:padding="10dp"
+            android:layout_weight="3"/>
+
+    </LinearLayout>
+
 </LinearLayout>

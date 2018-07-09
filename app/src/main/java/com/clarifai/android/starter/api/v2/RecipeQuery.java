@@ -25,13 +25,15 @@ public class RecipeQuery extends AsyncTask {
     private JSONArray jsonArray;
     private Context context;
     private List<String> results = new ArrayList<>();
+    private int position;
 
 
-    public RecipeQuery(int id, Context context){
+    public RecipeQuery(int id,  int position, Context context){
         Log.d("Constructor", "in here!");
         this.recipeID = id;
         this.url = "https://spoonacular-recipe-food-nutrition-v1.p.mashape.com/recipes/";
         this.context = context;
+        this.position = position;
     }
 
     public void setUrl(){
@@ -64,9 +66,15 @@ public class RecipeQuery extends AsyncTask {
         App state = App.get();
         state.setCurrentRecipe(jsonArray);
 
+
+        Intent intent = new Intent(context, RecipeListActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+
         try {
 
             Recipe recipe = state.makeRecipe();
+            state.setRecipe(recipe,this.position);
 
             String uri = recipe.getSourceURL();
             int time = recipe.getCooktime();
@@ -78,17 +86,32 @@ public class RecipeQuery extends AsyncTask {
 
             for (int i = 0; i < ingredients.length; i++)
             {
+                Ingredient ingredient = matchString(ingredients[i]);
                 Log.i("RECIPE ", ingredients[i]);
-                matchString(ingredients[i]);
+                if(ingredient != null)
+                {
+                    recipe.addIngredientToList(ingredient);
+                }
             }
 
-            Log.i("RECIPE ", String.valueOf(results));
 
+            String ingredientString = String.valueOf(results);
+            Log.i("Full RECIPE very list ", ingredientString);
 
-            final Uri uriParsed = Uri.parse(uri);
+            //state.addIngredientList(state.countRecipe, String.valueOf(results));
 
-                    Intent intent = new Intent(Intent.ACTION_VIEW, uriParsed);
-                    context.startActivity(intent);
+            recipe.setIngredientString(ingredientString);
+
+            //final Uri uriParsed = Uri.parse(uri);
+            //Intent intent = new Intent(Intent.ACTION_VIEW, uriParsed);
+            //context.startActivity(intent);
+
+            state.countRecipe++;
+
+            if (state.countRecipe == 5)
+            {
+                context.startActivity(intent);
+            }
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -97,16 +120,21 @@ public class RecipeQuery extends AsyncTask {
     }
 
 
-    private void matchString (String searchMe){
+    private Ingredient matchString (String searchMe){
 
 
         IngredientDataSingleton singleton = IngredientDataSingleton.getInstance();
 
-        List<String> listOfFood = singleton.getIngredientData();
+        List<Ingredient> listOfIngredients = singleton.getIngredientList();
 
 
-        for (String findMe : listOfFood)
+        for (int j = 0 ; j < listOfIngredients.size(); j++)
         {
+            Ingredient ingredient = listOfIngredients.get(j);
+            String findMe = ingredient.getName();
+            float waterM = ingredient.getWater();
+            float carbonP = ingredient.getCarbon();
+
             int searchMeLength = searchMe.length();
             int findMeLength = findMe.length();
             boolean foundIt = false;
@@ -140,13 +168,15 @@ public class RecipeQuery extends AsyncTask {
                         else
                         {
                             Log.i("MATCH ", "El viejo contiene al nuevo, no se hace nada con este  " + print);
+                            return null;
 
                         }
 
                     }
 
+                    return ingredient;
 
-                    break;
+
                 }
             }
             if (!foundIt)
@@ -155,7 +185,7 @@ public class RecipeQuery extends AsyncTask {
 
             }
         }
-
+        return null;
     }
 
 

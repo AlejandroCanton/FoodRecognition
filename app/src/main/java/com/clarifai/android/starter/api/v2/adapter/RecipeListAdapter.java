@@ -21,12 +21,16 @@ public class RecipeListAdapter extends ArrayAdapter<String> {
     private final Activity context;
     private final String[] itemname;
     private final String[] imgUrl;
+    private final String[] sourceUrl;
+    private final int[] colors;
 
-    public RecipeListAdapter(Activity context, String[] itemname, String[] imgUrl) {
+    public RecipeListAdapter(Activity context, String[] itemname, String[] imgUrl, String[] sourceUrl, int [] colors) {
         super(context, R.layout.item_recipe, itemname);
         this.context=context;
         this.itemname=itemname;
         this.imgUrl=imgUrl;
+        this.sourceUrl=sourceUrl;
+        this.colors=colors;
     }
 
     public View getView(int position,View view,ViewGroup parent) {
@@ -45,7 +49,8 @@ public class RecipeListAdapter extends ArrayAdapter<String> {
 
 
         //imageView.setImageResource(imgid[0]);
-        extratxt.setText("Ingredients, watermark, health info and stuff");
+        extratxt.setText(sourceUrl[position]);
+        rowView.setBackgroundColor(colors[position]);
         return rowView;
 
     };

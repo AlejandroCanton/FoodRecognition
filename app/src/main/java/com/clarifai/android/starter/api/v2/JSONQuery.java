@@ -86,8 +86,21 @@ public class JSONQuery extends AsyncTask{
         App state = App.get();
         state.setDishes(getDishes());
         super.onPostExecute(o);
-        Intent i = new Intent(context, RecipeListActivity.class);
+
+
+
+        for (int i=0; i<5; i++)
+        {
+            int recipeId = App.get().getDishes().get(i).getID();
+            RecipeQuery recipe = new RecipeQuery(recipeId, i,  context);
+            recipe.setUrl();
+            recipe.execute();
+
+        }
+
+
+        /*Intent i = new Intent(context, RecipeListActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(i);
+        context.startActivity(i);*/
     }
 }

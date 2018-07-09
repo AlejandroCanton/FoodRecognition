@@ -25,10 +25,12 @@ public class App extends Application {
   // Since that would be a distraction here, we will just use a regular singleton.
   private static App INSTANCE;
 
-  private String ingredientString;
+  private List<String> ingredientString;
   private List<Dish> dishes;
+  private List<Recipe> recipes;
   private int position;
   private JSONArray currentRecipe;
+  public int countRecipe;
 
   private ArrayList<String> ingredientList;
 
@@ -46,13 +48,33 @@ public class App extends Application {
 
   public void setDishes(List<Dish> list) {
     dishes = list;
+    recipes = new ArrayList<Recipe>();
+    ingredientList = new ArrayList<String>();
+    countRecipe = 0;
   }
 
-  public List<Dish> getDishes() {
+  public void addIngredientList(int i, String ingredients) {
+    this.ingredientList.add(i, ingredients);
+  }
+
+    public String getIngredientList(int i) {
+        return ingredientList.get(i);
+    }
+
+    public List<Dish> getDishes() {
     return dishes;
   }
 
-  public void setCurrentRecipe(JSONArray arr) {
+
+    public void setRecipe(Recipe recipe, int position) {
+        recipes.add(position, recipe);
+    }
+
+    public Recipe getRecipe(int position) {
+        return recipes.get(position);
+    }
+
+    public void setCurrentRecipe(JSONArray arr) {
     currentRecipe = arr;
   }
 

@@ -42,15 +42,18 @@ import clarifai2.dto.prediction.Concept;
 import com.clarifai.android.starter.api.v2.App;
 import com.clarifai.android.starter.api.v2.ClarifaiUtil;
 import com.clarifai.android.starter.api.v2.ExifUtils;
+import com.clarifai.android.starter.api.v2.Ingredient;
 import com.clarifai.android.starter.api.v2.IngredientDataSingleton;
 import com.clarifai.android.starter.api.v2.JSONQuery;
 import com.clarifai.android.starter.api.v2.R;
 import com.clarifai.android.starter.api.v2.adapter.RecognizeConceptsAdapter;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -109,6 +112,8 @@ public final class RecognizeConceptsActivity extends BaseActivity {
     private Resources resources;
     private String m_Text = "";
 
+    private List<Ingredient> ingredientList;
+
 
   @NonNull private final RecognizeConceptsAdapter adapter = new RecognizeConceptsAdapter();
 
@@ -118,24 +123,27 @@ public final class RecognizeConceptsActivity extends BaseActivity {
       resources = getResources();
       listOfItems = new ArrayList<>();
       listOfFood = new ArrayList<>();
+      ingredientList = new ArrayList<>();
       fabNext.setVisibility(View.INVISIBLE);
       createSingleton();
 
-
   }
+
+
 
     private void createSingleton() {
 
-        List<String> ingredientList = populateIngredienteList();
+        List<String> ingredientNames = populateIngredienteList();
 
         if (ingredientList != null){
 
             singleton = IngredientDataSingleton.getInstance();
-            singleton.setIngredientData(ingredientList);
+            singleton.setIngredientList(this.ingredientList);
+            singleton.setIngredientNames(ingredientNames);
 
             Log.i("SINGLETON      ", "SETTING SUCCEED");
 
-            listOfFood = singleton.getIngredientData();
+            //listOfFood = singleton.getIngredientNames();
 
             Log.i("SINGLETON      ", "GETTING SUCCEED");
 
@@ -144,7 +152,7 @@ public final class RecognizeConceptsActivity extends BaseActivity {
         }
     }
 
-    public List<String> populateIngredienteList (){
+    /*public List<String> populateIngredienteList (){
 
       try
       {
@@ -171,7 +179,44 @@ public final class RecognizeConceptsActivity extends BaseActivity {
 
 
 
-  }
+  }*/
+
+
+
+    public List<String> populateIngredienteList(){
+
+
+        //List<String> listOfFood = new ArrayList<>();
+        String[] ids;
+        InputStream inputStream = getResources().openRawResource(R.raw.foodinfo);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        try {
+            String cavLine;
+            Ingredient ingredient;
+
+            while ((cavLine = reader.readLine()) != null)
+            {
+                ids = cavLine.split(";");
+
+                try {
+
+                    ingredient = new Ingredient(ids[0], ids[1], ids[2]);
+                    ingredientList.add(ingredient);
+                    listOfFood.add(ingredient.getName());
+
+                    Log.v("ING", ingredient.getName());
+
+                }catch (Exception e){
+
+                }
+
+            }
+        }catch (IOException e){
+
+        }
+
+        return listOfFood;
+    }
 
   @Override protected void onStart() {
     super.onStart();
@@ -366,25 +411,13 @@ public final class RecognizeConceptsActivity extends BaseActivity {
     //layoutFood.removeAllViews();
     //listOfItems = new ArrayList<>();
 
-    if (requestCode == PICK_IMAGE) //|| requestCode == REQUEST_IMAGE_CAPTURE)
+    if (requestCode == PICK_IMAGE)
     {
 
         Uri selectedImageURI = data.getData();
         File imageFile = new File(getRealPathFromURI(selectedImageURI));
         Bitmap bitmap= decodeFile(imageFile.getPath());
 
-
-        /*if (requestCode == PICK_IMAGE)
-      {
-        inStream = context.getContentResolver().openInputStream(data.getData());
-        bitmap = BitmapFactory.decodeStream(inStream);
-
-      } else if (requestCode == REQUEST_IMAGE_CAPTURE)
-      {
-        Bundle extras = data.getExtras();
-        bitmap = (Bitmap) extras.get("data");
-
-      }*/
 
       final byte[] imageBytes = ClarifaiUtil.retrieveSelectedImage(this, bitmap, requestCode);
 
@@ -485,7 +518,7 @@ public final class RecognizeConceptsActivity extends BaseActivity {
   {
 
       List<String> filteredNames = new ArrayList<>();
-      List<String> ingredientData = singleton.getIngredientData();
+      List<String> ingredientData = singleton.getIngredientNames();
 
 
       for (Concept c : concepts)
@@ -506,7 +539,6 @@ public final class RecognizeConceptsActivity extends BaseActivity {
                   addEntry(nameOfConcept);
               }
           }
-
 
       }
 
